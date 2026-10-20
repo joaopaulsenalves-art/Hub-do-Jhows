@@ -1,0 +1,39 @@
+// supabase-client.js
+// Fica na raiz do hub, ao lado do index.html.
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+// Troque pelos seus dados (Project Settings > Data API e API Keys).
+// Use SÓ a chave publishable/anon. NUNCA a secret ou service_role.
+const SUPABASE_URL = 'https://SEU-ID.supabase.co';
+const SUPABASE_ANON_KEY = 'SUA_CHAVE_PUBLISHABLE_OU_ANON';
+
+export const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+export async function cadastrar(email, senha, username) {
+  const { data, error } = await sb.auth.signUp({
+    email,
+    password: senha,
+    options: { data: { username } }
+  });
+  if (error) throw error;
+  return data;
+}
+
+export async function entrar(email, senha) {
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: senha });
+  if (error) throw error;
+  return data;
+}
+
+export const sair = () => sb.auth.signOut();
+
+// Ajuste o caminho se o hub estiver em subpasta (ex.: '/nome-do-repo/redefinir.html')
+export const recuperarSenha = (email) =>
+  sb.auth.resetPasswordForEmail(email, {
+    redirectTo: new URL('redefinir.html', location.href).href
+  });
+
+export async function usuarioAtual() {
+  const { data } = await sb.auth.getSession();
+  return data.session?.user ?? null;
+}
