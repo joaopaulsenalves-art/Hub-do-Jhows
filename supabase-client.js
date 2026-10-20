@@ -4,7 +4,7 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 
 // Troque pelos seus dados (Project Settings > Data API e API Keys).
 // Use SÓ a chave publishable/anon. NUNCA a secret ou service_role.
-const SUPABASE_URL = 'https://ootdrxnoywwdwymzmwxt.supabase.co/rest/v1/';
+const SUPABASE_URL = 'https://ootdrxnoywwdwymzmwxt.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9vdGRyeG5veXd3ZHd5bXptd3h0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0ODUyMTYsImV4cCI6MjEwODA2MTIxNn0.Gx1StwS9snFOUJEIrnuuMUveGd3prOTqJPb6uWE82a8';
 
 export const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
