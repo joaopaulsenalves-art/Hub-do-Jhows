@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@6.0.0-alpha.1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-B/GM4XqrwHnWXNOWMbloTmrYXZg10cakYGmpfsR/bbzQ6JAJI4ihuyADKLnBgrCe" crossorigin="anonymous">
+    <title>Entrar - HUB JHOWS</title>
+</head>
+
+<body>
+
+    <nav class="navbar" data-bs-theme="dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html" style="font-size: 30pt;">Hub do Jhows</a>
+        </div>
+    </nav><br><br>
+
+    <aside>
+        <form id="form-login" novalidate>
+            <div class="mb-3">
+                <label for="email" class="form-label">E-mail</label>
+                <input type="email" class="form-control" id="email" placeholder="Adicione seu e-mail"
+                    autocomplete="email" required>
+            </div>
+            <div class="mb-3">
+                <label for="senha" class="form-label">Senha</label>
+                <input type="password" class="form-control" id="senha" placeholder="Digite sua senha"
+                    autocomplete="current-password" required>
+            </div>
+
+            <button type="submit" id="btn-entrar" class="btn-solid theme-accent">Entrar</button>
+            <button type="button" id="btn-esqueci" class="btn-solid theme-accent">Esqueci a senha</button>
+
+            <p id="mensagem" role="status" style="margin-top: 12px;"></p>
+            <p>Ainda não tem conta? <a href="cadastro.html">Criar conta</a></p>
+        </form>
+    </aside>
+
+    <script type="module">
+        import { entrar, recuperarSenha, usuarioAtual } from './supabase-client.js';
+
+        const form = document.getElementById('form-login');
+        const btnEntrar = document.getElementById('btn-entrar');
+        const btnEsqueci = document.getElementById('btn-esqueci');
+        const mensagem = document.getElementById('mensagem');
+
+        function mostrar(texto, tipo) {
+            mensagem.textContent = texto;               // textContent: seguro contra HTML injetado
+            mensagem.style.color = tipo === 'erro' ? '#ff7675' : '#55efc4';
+        }
+
+        function traduzirErro(erro) {
+            const m = (erro.message || '').toLowerCase();
+            if (m.includes('invalid login credentials')) return 'E-mail ou senha incorretos.';
+            if (m.includes('email not confirmed')) return 'Confirme seu e-mail pelo link que enviamos antes de entrar.';
+            if (m.includes('rate limit') || m.includes('too many')) return 'Muitas tentativas. Aguarde alguns minutos.';
+            return 'Não foi possível entrar. Tente novamente.';
+        }
+
+        // Se já estiver logado, vai direto para o hub
+        usuarioAtual().then((user) => {
+            if (user) window.location.href = 'index.html';
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value.trim();
+            const senha = document.getElementById('senha').value;
+
+            if (!email || !email.includes('@')) return mostrar('Digite um e-mail válido.', 'erro');
+            if (!senha) return mostrar('Digite sua senha.', 'erro');
+
+            btnEntrar.disabled = true;
+            mostrar('Entrando...', 'ok');
+
+            try {
+                await entrar(email, senha);
+                mostrar('Login feito! Redirecionando...', 'ok');
+                window.location.href = 'index.html';
+            } catch (erro) {
+                btnEntrar.disabled = false;
+                mostrar(traduzirErro(erro), 'erro');
+            }
+        });
+
+        btnEsqueci.addEventListener('click', async () => {
+            const email = document.getElementById('email').value.trim();
+            if (!email || !email.includes('@')) {
+                return mostrar('Digite seu e-mail no campo acima e clique em "Esqueci a senha".', 'erro');
+            }
+
+            btnEsqueci.disabled = true;
+            try {
+                await recuperarSenha(email);
+            } catch (erro) {
+                // Não revelamos se o e-mail existe ou não
+            }
+            // Mesma mensagem exista ou não a conta
+            mostrar('Se esse e-mail estiver cadastrado, você receberá um link para redefinir a senha.', 'ok');
+            setTimeout(() => { btnEsqueci.disabled = false; }, 30000);   // evita cliques repetidos
+        });
+    </script>
+</body>
+
+</html>
