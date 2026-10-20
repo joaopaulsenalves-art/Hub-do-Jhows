@@ -109,6 +109,7 @@
             } catch (erro) {
                 btn.disabled = false;
                 mostrar(traduzirErro(erro), 'erro');
+                console.error('ERRO DO CADASTRO:', erro);
             }
         });
     </script>
