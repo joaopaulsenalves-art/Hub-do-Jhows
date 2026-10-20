@@ -1,0 +1,28 @@
+*{
+    margin:0px;
+    padding:0px;
+}
+
+.jogos{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+   
+    margin:100px;
+    gap: 30px;
+    
+}
+
+.container-jogo{
+    width: 170px;
+    height: 200px;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.container-jogo img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
