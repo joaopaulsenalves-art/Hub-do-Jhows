@@ -19,7 +19,7 @@
     </nav><br><br>
 
     <aside>
-        <form id="form-cadastro" novalidate>
+        <form id="form-cadastrar" novalidate>
             <div class="mb-3">
                 <label for="nome" class="form-label">Nome de usuário</label>
                 <input type="text" class="form-control" id="nome" placeholder="Adicione seu nome"
@@ -43,7 +43,7 @@
     <script type="module">
         import { cadastrar } from './supabase-client.js';
 
-        const form = document.getElementById('form-cadastro');
+        const form = document.getElementById('form-cadastrar');
         const btn = document.getElementById('btn-enviar');
         const mensagem = document.getElementById('mensagem');
 
@@ -59,7 +59,8 @@
             if (m.includes('password')) return 'Senha inválida. Use no mínimo 8 caracteres.';
             if (m.includes('rate limit') || m.includes('too many')) return 'Muitas tentativas. Aguarde alguns minutos.';
             if (m.includes('invalid') && m.includes('email')) return 'E-mail inválido.';
-            return 'Não foi possível criar a conta. Tente novamente.';
+            // Detalhe técnico para descobrir a causa (pode remover depois dos testes)
+            return 'Não foi possível criar a conta. Detalhe: ' + (erro.message || erro);
         }
 
         form.addEventListener('submit', async (e) => {
@@ -107,9 +108,9 @@
                     btn.disabled = false;
                 }
             } catch (erro) {
+                console.error('ERRO DO CADASTRO:', erro);
                 btn.disabled = false;
                 mostrar(traduzirErro(erro), 'erro');
-                console.error('ERRO DO CADASTRO:', erro);
             }
         });
     </script>
