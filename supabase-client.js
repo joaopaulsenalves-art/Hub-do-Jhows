@@ -13,7 +13,10 @@ export async function cadastrar(email, senha, username) {
   const { data, error } = await sb.auth.signUp({
     email,
     password: senha,
-    options: { data: { username } }
+    options: {
+      data: { username },
+      emailRedirectTo: 'https://joaopaulsenalves-art.github.io/Hub-do-Jhows/index.html'
+    }
   });
   if (error) throw error;
   return data;
