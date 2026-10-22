@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de progresso - HUB JHOWS</title>
+    <style>
+        body { font-family: system-ui, sans-serif; background: #12131a; color: #eee; padding: 24px; }
+        .card { max-width: 480px; margin: 0 auto; background: #1c1e2a; padding: 24px; border-radius: 14px; }
+        button { margin: 6px 6px 0 0; padding: 10px 14px; border: 0; border-radius: 8px;
+                 background: #6c5ce7; color: #fff; cursor: pointer; }
+        pre { background: #12131a; padding: 12px; border-radius: 8px; overflow: auto; }
+        #status { color: #a29bfe; }
+        a { color: #a29bfe; }
+    </style>
+</head>
+
+<body>
+    <main class="card">
+        <h1>Teste de progresso</h1>
+        <p id="status">Verificando login...</p>
+
+        <p>Contador salvo: <strong id="contador">0</strong></p>
+        <button id="btn-somar">Somar +1 e salvar</button>
+        <button id="btn-agora">Salvar agora</button>
+        <button id="btn-carregar">Recarregar da nuvem</button>
+
+        <p>Último estado carregado:</p>
+        <pre id="saida">(nada ainda)</pre>
+
+        <p><a href="login.html">Entrar</a> · <a href="index.html">Voltar ao hub</a></p>
+    </main>
+
+    <script type="module">
+        import { carregar, salvar, salvarAgora, usuarioAtual } from './progress.js';
+
+        const GAME_ID = 'teste';
+        let estado = { contador: 0 };
+
+        const status = document.getElementById('status');
+        const contador = document.getElementById('contador');
+        const saida = document.getElementById('saida');
+
+        function desenhar() {
+            contador.textContent = estado.contador;
+            saida.textContent = JSON.stringify(estado, null, 2);   // textContent: seguro
+        }
+
+        async function iniciar() {
+            const user = await usuarioAtual();
+            status.textContent = user
+                ? 'Logado como ' + user.email + '. O progresso vai para a nuvem.'
+                : 'Visitante: o progresso fica só neste aparelho.';
+
+            const salvo = await carregar(GAME_ID);
+            if (salvo) estado = { ...estado, ...salvo };
+            desenhar();
+        }
+
+        document.getElementById('btn-somar').addEventListener('click', () => {
+            estado.contador++;
+            salvar(GAME_ID, estado);            // envia à nuvem após ~1,5 s
+            desenhar();
+        });
+
+        document.getElementById('btn-agora').addEventListener('click', async () => {
+            const ok = await salvarAgora(GAME_ID, estado);
+            status.textContent = ok ? 'Salvo na nuvem.' : 'Salvo só neste aparelho (sem login ou sem rede).';
+        });
+
+        document.getElementById('btn-carregar').addEventListener('click', async () => {
+            const salvo = await carregar(GAME_ID);
+            estado = { contador: 0, ...(salvo || {}) };
+            desenhar();
+        });
+
+        iniciar();
+    </script>
+</body>
+
+</html>
